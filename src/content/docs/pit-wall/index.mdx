@@ -1,0 +1,51 @@
+---
+title: Pit Wall
+description: Agentic code review for GitHub pull requests. Findings on the changed lines, coverage in the summary, any LLM provider.
+---
+
+import { Aside, CardGrid, LinkCard } from '@astrojs/starlight/components';
+import banner from '../../../assets/pit-wall-banner.svg';
+
+<img class="banner-img" src={banner.src} alt="Pit Wall: agentic code review for GitHub pull requests" />
+
+Pit Wall reviews every pull request in the repositories where its GitHub App is installed. When a pull request is opened or updated, it leaves comments on the changed lines and one summary that says what it reviewed and what it could not.
+
+A person with write access can also ask for a review by commenting `/pitwall review` on the pull request.
+
+The review logic does not depend on one LLM provider. The first release ships with one provider, Anthropic, behind an interface that other providers plug into ([ADR 0005](decisions/2026-11-19-llm-provider-anthropic-only/)).
+
+## How a review runs
+
+1. GitHub sends a webhook to the `web` process. It checks the signature and puts a job in the Postgres queue.
+2. The `worker` process takes the job, checks out the pull request head and reads your organisation's rules from the base branch.
+3. The agent reviews the changed files in groups, with a short loop of read-only tools: `read_file`, `grep` and `find_callers`.
+4. Each finding is filtered by confidence, by duplicates and by what was already published, then anchored to a line of the diff.
+5. Pit Wall publishes one review with the comments and the summary, and records the pull request's risk score.
+
+The full flow, the data model and how risk and coverage are computed are in [How it works](how-it-works/).
+
+<Aside type="note" title="Pit Wall only comments">
+Every review uses GitHub's `COMMENT` event. Pit Wall never approves a pull request and never requests changes. The merge decision stays with a person.
+</Aside>
+
+## Start here
+
+<CardGrid>
+  <LinkCard title="Install the GitHub App" description="Permissions, events, the webhook and the /pitwall review command." href="github-app/" />
+  <LinkCard title="Deploy on Railway" description="Two services from one build, migrations, secrets and costs." href="deploy-railway/" />
+  <LinkCard title="Configuration" description="Every environment variable, its default and where it is read." href="configuration/" />
+  <LinkCard title="Rule packs" description="Your organisation's review rules, as data in your repository or in Notion." href="rule-packs/" />
+</CardGrid>
+
+## Status
+
+**Deliverable 1, base review:** automatic and on-demand review, rule packs from the repository and from Notion, a recorded risk score, coverage in the summary and local evaluation.
+
+Next deliverables:
+
+1. Verifier and evals
+2. Verdict and checks
+3. Risk tiers
+4. Costs and learning
+5. MySQL data review
+6. Local CLI

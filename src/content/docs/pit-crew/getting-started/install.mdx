@@ -1,39 +1,13 @@
 ---
 title: Install
-description: Get access to the private Pit Crew repository, install the plugin at user scope, and update or uninstall it.
+description: Install the Pit Crew plugin at user scope, keep it up to date, and update or uninstall it.
 ---
 
 import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 
-Pit Crew is a private plugin. Its repository is not public: access is by invitation. This documentation is public, so you can read how it works before you ask.
+Two commands install Pit Crew, one setting keeps it up to date and one command checks the result.
 
-Once you have access, two commands install it, one setting keeps it up to date and one command checks the result.
-
-## Get access
-
-You need read access to the Pit Crew repository on GitHub. Access is given to companies, by invitation.
-
-<Steps>
-
-1. **Ask for an invitation.**
-
-   Write to **`ACCESS-CONTACT-TO-BE-DEFINED`** and send the GitHub username of each person who will install the plugin.
-
-2. **Accept the invitation on GitHub.**
-
-   Until you accept it, the repository answers "not found" and the install commands below fail.
-
-3. **Check that your machine can read the repository.**
-
-   ```bash
-   gh auth login
-   gh auth setup-git
-   gh repo view gvareika1997/pit-crew --json name
-   ```
-
-   The last command prints the repository name when your account has access.
-
-</Steps>
+The plugin lives in the [`paddock-agents/pit-crew`](https://github.com/paddock-agents/pit-crew) repository, which is also its marketplace.
 
 ## Before you start
 
@@ -60,23 +34,23 @@ Everything else is optional. See [Connect your tools](../connect-your-tools/).
 1. **Add the marketplace and install the plugin.**
 
    ```bash
-   claude plugin marketplace add gvareika1997/pit-crew
+   claude plugin marketplace add paddock-agents/pit-crew
    claude plugin install pit-crew@pit-crew
    ```
 
    Install at **user scope**, so the commands work from any repo on the machine. User scope is the default of `claude plugin install`.
 
    <Aside type="note" title="Using a fork or a company pack?">
-   Replace `gvareika1997` with the GitHub account that hosts your marketplace. An organisation that publishes a pack installs the pack instead: the pack pulls the core in through its `dependencies`.
+   Replace `paddock-agents` with the GitHub account that hosts your marketplace. An organisation that publishes a pack installs the pack instead: the pack pulls the core in through its `dependencies`.
    </Aside>
 
 2. **Enable auto-update.**
 
    In Claude Code, run `/plugin`, then go to **Marketplaces → pit-crew → Enable auto-update**. Third-party marketplaces have auto-update off by default.
 
-3. **Keep a git credential stored for the repository.**
+3. **If your marketplace repository is private, keep a git credential stored for it.**
 
-   The repository is private, so every update needs one.
+   A fork or a company marketplace is often private. Every update of a private marketplace needs a credential.
 
    <Tabs>
      <TabItem label="HTTPS remote">

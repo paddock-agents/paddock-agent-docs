@@ -3,7 +3,7 @@
 //   node scripts/gen-reference.mjs /path/to/pit-crew
 //
 // Reads the frontmatter of commands, skills and agents, hooks/hooks.json with each
-// script's header comment, and CONTEXT.md. Writes src/content/docs/reference/*.mdx.
+// script's header comment, and CONTEXT.md. Writes src/content/docs/pit-crew/reference/*.mdx.
 // The output is committed: the docs repo does not contain the plugin source.
 //
 // Two lists below are curated, because the source text is written for the model, not
@@ -20,7 +20,7 @@ if (!fs.existsSync(path.join(core, '.claude-plugin/plugin.json'))) {
   console.error(`No pit-crew checkout at ${repo}. Pass its path as the first argument.`);
   process.exit(1);
 }
-const out = path.resolve('src/content/docs/reference');
+const out = path.resolve('src/content/docs/pit-crew/reference');
 fs.mkdirSync(out, { recursive: true });
 
 const version = JSON.parse(fs.readFileSync(path.join(core, '.claude-plugin/plugin.json'), 'utf8')).version;
@@ -70,7 +70,7 @@ const code = (s) => '`' + String(s).replace(/`/g, "'") + '`';
 function page(file, title, description, body, extra = '') {
   const fm = `---\ntitle: ${JSON.stringify(title)}\ndescription: ${JSON.stringify(description)}\n${extra}---\n\n`;
   fs.writeFileSync(path.join(out, file), fm + body.trim() + `\n\n---\n\n<small>${stamp}</small>\n`);
-  console.log('wrote', path.join('src/content/docs/reference', file));
+  console.log('wrote', path.join('src/content/docs/pit-crew/reference', file));
 }
 
 // ---- Commands -------------------------------------------------------------
@@ -139,6 +139,7 @@ const skills = fs
 // One line per skill, written for a reader. Each line restates the skill's own
 // frontmatter description and adds nothing to it. Trigger phrases stay in the source.
 const SKILL_SUMMARY = {
+  eli5: 'Explains a complex topic from zero to someone who knows nothing about it, with one everyday analogy and a picture. With no topic during a run, explains the run\'s plan page.',
   adr: 'Writes an architecture decision record in `docs/decisions/`, with the repo\'s naming convention and template.',
   artifact: 'Publishes the run\'s shareable plan page right before the 1c gate, and adds the Evidence tab after the DEV verdict.',
   brainstorm: 'Takes an idea too big for one ticket to a decided initiative: a focus statement, research, alternatives, one chosen option, a shareable page and, after you approve it, one tracker project with a milestone per deliverable.',
@@ -156,6 +157,8 @@ const SKILL_SUMMARY = {
   'task-routing': 'Sizes the pipeline to the task by effort, time and tokens: inline or delegated, the Builder effort profile, the context budget and the rounds.',
   'tool-authoring': 'Design rules and test templates for an MCP tool.',
   triage: 'Investigates a bug with evidence and reports its root cause, read-only, without fixing it. Two depths: Full and Quick.',
+  'verify-create': 'Generates the repo\'s verification skill by reading the repo, picks a launch route (local, hybrid or remote), runs it once end to end and shows the evidence. Manual only.',
+  'verify-maintain': 'Keeps a repo\'s verification skill and its feature map honest: drives every feature live and ends clean, changed (one PR confined to the skill folder) or blocked. Never edits product code. Manual only.',
 };
 const skillKey = (s) => s.name || s.dir;
 const unsummarised = skills.map(skillKey).filter((k) => !SKILL_SUMMARY[k]);

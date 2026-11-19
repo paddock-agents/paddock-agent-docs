@@ -8,7 +8,7 @@ import path from 'node:path';
 const dist = 'dist';
 const docs = 'src/content/docs';
 const config = fs.readFileSync('astro.config.mjs', 'utf8');
-const base = (process.env.DOCS_BASE ?? '/pit-crew-docs').replace(/\/$/, '');
+const base = (process.env.DOCS_BASE ?? '/paddock-agent-docs').replace(/\/$/, '');
 const errors = [];
 
 const walk = (dir, ext, acc = []) => {

@@ -1,0 +1,69 @@
+---
+title: Pit Crew and Pit Wall together
+description: Make Pit Crew wait for Pit Wall's review on each push and resolve its findings before it hands the pull request back.
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+Pit Crew opens pull requests. Pit Wall reviews pull requests. On a repository with both, you can make Pit Crew treat Pit Wall as one of its review bots. Phase 3 of a run then waits for Pit Wall's review on each push, reads its comments and resolves them: it fixes the verified findings and answers the others.
+
+Neither tool needs the other. Pit Wall reviews pull requests written by people the same way, and Pit Crew works with any review bot or with none.
+
+## Set it up
+
+<Steps>
+
+1. **Install Pit Wall on the repository.**
+
+   Follow [Install the GitHub App](../pit-wall/github-app/). Pit Wall then reviews every pull request the repository gets, including the ones Pit Crew opens.
+
+2. **Find the bot's login.**
+
+   Pit Wall comments as its GitHub App, so its login is the App's slug followed by `[bot]`, for example `my-pitwall[bot]`. Open any review Pit Wall left and copy the author name exactly as it appears.
+
+3. **Add Pit Wall to Pit Crew's `review` role.**
+
+   In `~/.claude/pit-crew/config.json`, or in the repository's `.pit-crew/config.json`:
+
+   ```json
+   {
+     "roles": {
+       "review": {
+         "enabled": true,
+         "adapter": "github-bots",
+         "settings": {
+           "bots": [
+             { "name": "pitwall", "login": "my-pitwall[bot]", "trigger": "/pitwall review" }
+           ]
+         }
+       }
+     }
+   }
+   ```
+
+   `trigger` is the comment Pit Crew posts when it needs a review on a head that did not get one from the push. Pit Wall acts on it only when the account that posts it has write access to the repository.
+
+4. **Optional: tell each repository which bots to wait for.**
+
+   In the repository's `CLAUDE.md` on the default branch, add a `## pit-crew: review bots` heading with the line `bots: pitwall`. Without it, Pit Crew uses the bots it saw on the repository's last merged pull requests.
+
+</Steps>
+
+<Aside type="note" title="No status check yet">
+Pit Wall does not publish a commit status or a check today; that arrives with its "verdict and checks" deliverable. Leave `status_context` out of the bot entry until then. Pit Crew reads the review and its comments.
+</Aside>
+
+## What happens in a run
+
+1. Pit Crew pushes the branch and opens the pull request.
+2. GitHub sends the `pull_request` event to Pit Wall, which reviews the head.
+3. Pit Crew waits for a review from `pitwall` on that head.
+4. Pit Crew resolves each Pit Wall comment: it fixes a verified finding and pushes, or answers why it does not apply.
+5. Each new push is a new head. Pit Wall reviews the files of the pull request that moved since its last completed review, or the whole pull request after a force-push, and Pit Crew waits again.
+6. Pit Crew hands you the pull request with its evidence. You read Pit Wall's summary and decide on the merge.
+
+## Related pages
+
+- [Pit Crew's review role](../pit-crew/roles/review/)
+- [Pit Wall's incremental review](../pit-wall/decisions/2026-11-19-incremental-review-semantics/)
+- [Evidence and PRs in Pit Crew](../pit-crew/how-it-works/evidence-and-prs/)

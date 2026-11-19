@@ -1,5 +1,5 @@
 ---
-title: "Agents (16)"
+title: "Agents (17)"
 description: "The pipeline agents of Pit Crew: what each one does, its model and its tools."
 ---
 
@@ -11,6 +11,7 @@ The phase commands dispatch these agents. You do not call them yourself. Each on
 | `df-business-analyst` | Creates the business spec and observable acceptance criteria; rechecks ambiguous requirements against the final diff. Never designs the solution. | sonnet | medium |
 | `df-case-designer` | Testing role that writes the test spec in phase 2 (parallel to implementation) and grades the Tester's evidence against it in phase 3. Writes only its result file; never writes state. | sonnet | medium |
 | `df-comment-resolver` | Resolves one PR's new or changed feedback across every channel and author, fixes verified issues, answers other findings, and validates the current-head verdict. | sonnet | medium |
+| `df-data-reviewer` | Data review role. Judges whether each query a change adds or modifies fits its store and its real volume, in any store family (relational, replica, analytical, key-value, document, search, time-series, graph, cache), at design time over the plan's data accesses or pre-push over one repo's diff. Returns located findings that block or advise. Read-only; never writes data, never fixes. | opus | medium |
 | `df-dev-configurator` | Testing role for phase 3, and for phase 2's early run (--mode early). Prepares the route, its environment and the DEV data the test spec declares, records each one in the fixture manifest before writing it, and never touches production. | haiku | low |
 | `df-dev-tester` | Testing role for phase 3. Runs the spec paths in DEV through the environment the Configurator prepared (an ephemeral environment, shared DEV, in-cluster access or a local run from the worktree), driving the screen in a browser when a path names it, and returns raw evidence per path without grading it. | haiku | low |
 | `df-implementer-lite` | Implements a small approved pit-crew slice (router profile sonnet-medium) in one repo at medium effort, compiles it and runs the affected tests. Use only for a slice the router sized small; any other implementation goes to df-implementer, which also takes over when this one stays red: after one fix attempt it returns `build:"failed"` with the error in `blocked` and the orchestrator escalates. | sonnet | medium |
@@ -32,6 +33,7 @@ The phase commands dispatch these agents. You do not call them yourself. Each on
 | `df-business-analyst` | Read, Grep, Glob, Bash, Agent, AskUserQuestion, Write |
 | `df-case-designer` | Read, Grep, Glob, Bash, Write |
 | `df-comment-resolver` | Read, Write, Edit, Grep, Glob, Bash, Skill, Monitor |
+| `df-data-reviewer` | all |
 | `df-dev-configurator` | all |
 | `df-dev-tester` | all |
 | `df-implementer-lite` | Read, Write, Edit, Grep, Glob, Bash, Skill |
@@ -47,4 +49,4 @@ The phase commands dispatch these agents. You do not call them yourself. Each on
 
 ---
 
-<small>Generated from pit-crew `1474729` (core 6.2.1) by `scripts/gen-reference.mjs`. Do not edit by hand.</small>
+<small>Generated from pit-crew `fbde237` (core 6.6.1) by `scripts/gen-reference.mjs`. Do not edit by hand.</small>

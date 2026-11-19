@@ -1,131 +1,53 @@
 ---
-title: Pit Crew
-description: With Pit Crew a systems engineer works like a production engineer. You design the product, the process and the tolerances; the agents write the code.
+title: Paddock Agents
+description: Agents for the software delivery line. Pit Crew takes a ticket to a reviewed, DEV-verified pull request. Pit Wall reviews every pull request on GitHub.
 template: splash
 hero:
-  tagline: You design the product, the process and the tolerances. The agents write the code. You answer for what reaches production.
-  image:
-    file: ../../assets/pit-crew-sticker.svg
-    alt: Pit Crew sticker
+  tagline: Agents for the delivery line. One builds the pull request, one reviews it. You stay at the wheel.
   actions:
-    - text: Why it changes the job
-      link: how-it-works/why/
+    - text: Pit Crew
+      link: pit-crew/
       icon: right-arrow
-    - text: How you work
-      link: how-it-works/your-two-gates/
+    - text: Pit Wall
+      link: pit-wall/
+      icon: right-arrow
       variant: minimal
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
-import Video from '../../components/Video.astro';
-import banner from '../../assets/pit-crew-banner.svg';
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
 
-<img class="banner-img" src={banner.src} alt="Pit Crew: the dev at the wheel, the agents in the pit" />
-
-## Why
-
-Until now a systems engineer designed the building and also laid every brick by hand. The bottleneck was typing the code.
-
-A production engineer does not stand at the press and stamp each part. They design the product, the process and the quality controls, and they answer for what leaves the plant. When a part comes out wrong, they do not stamp faster. They fix the process.
-
-With agents, a systems engineer can work that way. Pit Crew is the line that makes it practical.
-
-| Production engineer | Systems engineer with Pit Crew |
-|---|---|
-| Designs the product, the process and the tolerances | Designs the solution, the architecture, the contracts and the path to production |
-| The machines make the parts | The agents write the code |
-| Quality control on the line, not only inspection at the end | Tests, review and evidence while the change is built |
-| Answers for what leaves the plant | Answers for what reaches production and works |
-| When it goes wrong, improves the process | When it goes wrong, improves the design, the tests and the tools |
-
-[Why it changes the job](how-it-works/why/)
-
-## How you work: two gates
-
-Your time goes to two decisions, and both come before any code exists.
-
-- **Gate 1a · business**, the product gate. What the change does, for whom, and the acceptance criteria. No technical vocabulary.
-- **Gate 1c · architecture**, the technical gate. The design, the contracts between services, the data changes and the risks.
-
-At each gate you validate an artifact, not a conversation: a business spec, then a decision table and a plan page. Each gate closes with a two-line recap. That recap is what you approve, and the final report repeats it word for word.
-
-```mermaid
-flowchart TB
-    R(["Ticket or prompt"]) --> G1
-    subgraph YOU["You"]
-        direction LR
-        G1{{"Gate 1a · business<br>what, for whom, criteria"}} --> G2{{"Gate 1c · architecture<br>design, contracts, risks"}}
-    end
-    subgraph AGENTS["The agents"]
-        direction LR
-        I["Implement"] --> J["Judge"] --> T["Tests"] --> S["Pre-push gate"] --> P["Pull requests<br>with evidence"]
-    end
-    G2 --> I
-    P -. you review the PR and start the deploy .-> D(["Production"])
-```
-
-[Where you work: the two gates](how-it-works/your-two-gates/)
-
-## What the agents do
-
-After Gate 1c you do not go back to typing code. If the session can write, the run continues on its own:
-
-1. It implements the approved design in a git worktree, never in your clone.
-2. It runs the tests the change affects.
-3. On a `full` run an adversarial judge attacks the whole diff against the ticket and the acceptance criteria.
-4. It runs the pre-push gate: a standards pass and a secret scan.
-5. It opens the pull requests, verifies each acceptance criterion and answers the review comments.
-
-It stops at green PR links, each with its evidence in the body.
-
-:::note[Where the unattended part ends today]
-A run ends at green pull requests. A person reviews and approves them, and you start the merge and the rollout yourself with `/pit-crew:deploy`. A run that continues to production on its own does not exist. That gap is roadmap, not a feature.
-:::
-
-[What the agents do](how-it-works/what-the-agents-do/)
-
-## Guarantees
-
-An unattended run is only worth trusting if you can check it afterwards and if some mistakes cannot happen at all.
+Paddock Agents is a family of agents that each own one stage of shipping a change. Each one runs on its own. Together they cover the path from a ticket to a merged pull request.
 
 <CardGrid>
-  <Card title="Evidence" icon="document">
-    Every acceptance criterion comes back with its proof in the PR body. A criterion the run could not prove is reported as not tested. It never closes green on a guess.
+  <Card title="Pit Crew" icon="rocket">
+    A feature delivery pipeline for Claude Code. You approve the business spec and the architecture at two gates; the agents implement, test, verify in DEV and open the pull requests with evidence.
+
+    [Read the Pit Crew docs](pit-crew/)
   </Card>
-  <Card title="Guards" icon="warning">
-    Hooks deny the riskiest actions before the tool call runs: a force-push, a merge that skips the repo's rules, a whole-suite test run, a write by a read-only agent.
-  </Card>
-  <Card title="A judge" icon="magnifier">
-    The agent that wrote the code does not grade it. On a `full` run a separate judge treats the diff as wrong until the code proves otherwise.
-  </Card>
-  <Card title="Hard caps" icon="error">
-    A red build or test gets three fix rounds. A fourth is refused and the run stops with the log path.
+  <Card title="Pit Wall" icon="magnifier">
+    Agentic code review for GitHub pull requests. A GitHub App that leaves findings on the changed lines and a summary with the review's coverage. It works with any LLM provider behind one interface.
+
+    [Read the Pit Wall docs](pit-wall/)
   </Card>
 </CardGrid>
 
-[Guarantees](how-it-works/guarantees/)
+## Where each one sits
 
-## A portable core, and connectors
+```mermaid
+flowchart LR
+    T(["Ticket"]) --> PC["Pit Crew<br>plan, build, test, open the PR"]
+    PC --> PR(["Pull request"])
+    PR --> PW["Pit Wall<br>findings on the lines, coverage summary"]
+    PW -. comments .-> PC
+    PR --> H{{"A person approves<br>and merges"}}
+```
 
-The core is portable: plan, implementation, judge, pre-push gate and pull request, on top of `git` and `gh`. It names no company tool.
+Pit Crew writes the change and opens the pull request. Pit Wall reviews it like any other pull request, no matter who wrote it. When both run on the same repository, Pit Crew waits for Pit Wall's review and resolves its comments before it hands the pull request back to you.
 
-Everything specific to a company comes in through a connector. A tracker, a knowledge base, a test environment, logs, a database, review bots and a deploy tool are **roles** you connect. With none connected, a run still plans with two gates, implements, tests, reviews and opens the PRs. Each step that needs a missing role is skipped and recorded, and the report says what was not tested.
+<LinkCard title="Use them together" description="Configure Pit Crew to wait for Pit Wall and resolve its findings." href="together/" />
 
-A **pack** is a second plugin that connects one organisation's tools in one install.
+## What they share
 
-[Roles and bindings](roles/) · [Packs](packs/)
-
-## See a run
-
-<Video name="pit-crew-for-engineers" title="Pit Crew for engineers" />
-
-*5:48, for engineers. The ticket, test environment and logs it shows come from the roles you connect. More in [Videos](getting-started/videos/).*
-
-[A worked example](getting-started/worked-example/) follows one bug from the report to the rollout, using the plugin's own templates and eval cases.
-
-## Install and reference
-
-When you want to run it:
-
-- [Install](getting-started/install/) and [Your first run](getting-started/first-run/).
-- [Reference](reference/commands/): every command, flag, skill, agent and hook.
+- **A person decides.** Pit Crew stops at two gates before any code exists and never deploys on its own. Pit Wall comments and never approves or requests changes.
+- **Evidence over claims.** Pit Crew's pull requests carry what was tested and what was not. Pit Wall's summary says which files it reviewed and which it could not.
+- **Your tools, not ours.** Pit Crew connects to your tracker, environments and logs through roles. Pit Wall reads your organisation's rules from rule packs in your repository.
